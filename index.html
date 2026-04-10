@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Love App 💘</title>
+
+<style>
+body {
+  margin: 0;
+  height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #ff758c, #ff7eb3);
+  font-family: 'Segoe UI', sans-serif;
+  overflow: hidden;
+  text-align: center;
+  color: white;
+}
+
+.container {
+  width: 90%;
+  max-width: 350px;
+  position: relative;
+}
+
+h1 {
+  font-size: 1.8rem;
+}
+
+#message {
+  height: 30px;
+  font-size: 1rem;
+}
+
+.buttons {
+  position: relative;
+  height: 150px;
+  margin-top: 20px;
+}
+
+button {
+  padding: 12px 20px;
+  font-size: 16px;
+  border: none;
+  border-radius: 30px;
+  cursor: pointer;
+  position: absolute;
+  transition: all 0.25s ease;
+}
+
+#yesBtn {
+  background: #ff4d6d;
+  color: white;
+  left: 20%;
+}
+
+#noBtn {
+  background: white;
+  color: #333;
+  left: 60%;
+}
+
+/* Heart burst */
+.heart {
+  position: fixed;
+  font-size: 18px;
+  animation: explode 1s ease-out forwards;
+}
+
+@keyframes explode {
+  0% {
+    transform: scale(0.5);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--x), var(--y)) scale(1.5);
+    opacity: 0;
+  }
+}
+
+/* Glow ripple */
+.ripple {
+  position: fixed;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.3);
+  animation: rippleAnim 0.8s ease-out forwards;
+}
+
+@keyframes rippleAnim {
+  from {
+    width: 0;
+    height: 0;
+    opacity: 0.7;
+  }
+  to {
+    width: 200px;
+    height: 200px;
+    opacity: 0;
+  }
+}
+
+/* Final screen */
+#finalScreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #ff4d6d, #ff9a9e);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.5s;
+}
+
+#finalScreen.show {
+  opacity: 1;
+  pointer-events: all;
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="container">
+  <h1>Do you love me? 💖</h1>
+  <div id="message"></div>
+
+  <div class="buttons">
+    <button id="yesBtn">Yes 😍</button>
+    <button id="noBtn">No 😅</button>
+  </div>
+</div>
+
+<!-- Final Screen -->
+<div id="finalScreen">
+  <h1>Will you be mine forever? 💍💖</h1>
+</div>
+
+<script>
+const noBtn = document.getElementById("noBtn");
+const yesBtn = document.getElementById("yesBtn");
+const message = document.getElementById("message");
+const container = document.querySelector(".buttons");
+const finalScreen = document.getElementById("finalScreen");
+
+let scale = 1;
+
+const messages = [
+  "Why no 😭",
+  "Think again 💔",
+  "That hurts 😢",
+  "You sure? 😳",
+  "Come on... yes 💖"
+];
+
+// Move No button (mobile + desktop)
+noBtn.addEventListener("touchstart", moveNo);
+noBtn.addEventListener("mouseover", moveNo);
+
+function moveNo() {
+  const maxX = container.clientWidth - noBtn.offsetWidth;
+  const maxY = container.clientHeight - noBtn.offsetHeight;
+
+  const x = Math.random() * maxX;
+  const y = Math.random() * maxY;
+
+  noBtn.style.left = x + "px";
+  noBtn.style.top = y + "px";
+
+  scale *= 0.9;
+  noBtn.style.transform = `scale(${scale})`;
+
+  message.textContent = messages[Math.floor(Math.random()*messages.length)];
+}
+
+// YES CLICK 💘
+yesBtn.addEventListener("click", (e) => {
+  message.textContent = "I knew it 😍💘";
+
+  createBurst(e.clientX, e.clientY);
+
+  setTimeout(() => {
+    finalScreen.classList.add("show");
+  }, 800);
+});
+
+// Heart burst explosion
+function createBurst(x, y) {
+  for (let i = 0; i < 25; i++) {
+    const heart = document.createElement("div");
+    heart.className = "heart";
+    heart.innerHTML = "💖";
+
+    const angle = Math.random() * 2 * Math.PI;
+    const distance = Math.random() * 100;
+
+    heart.style.setProperty("--x", Math.cos(angle) * distance + "px");
+    heart.style.setProperty("--y", Math.sin(angle) * distance + "px");
+
+    heart.style.left = x + "px";
+    heart.style.top = y + "px";
+
+    document.body.appendChild(heart);
+
+    setTimeout(() => heart.remove(), 1000);
+  }
+
+  // ripple effect
+  const ripple = document.createElement("div");
+  ripple.className = "ripple";
+  ripple.style.left = (x - 100) + "px";
+  ripple.style.top = (y - 100) + "px";
+
+  document.body.appendChild(ripple);
+  setTimeout(() => ripple.remove(), 800);
+}
+</script>
+
+</body>
+</html>
