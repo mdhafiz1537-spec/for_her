@@ -22,16 +22,19 @@ body {
 .container {
   width: 90%;
   max-width: 350px;
-  position: relative;
 }
 
-h1 {
-  font-size: 1.8rem;
+input {
+  padding: 10px;
+  border-radius: 20px;
+  border: none;
+  width: 80%;
+  margin-bottom: 10px;
+  text-align: center;
 }
 
 #message {
   height: 30px;
-  font-size: 1rem;
 }
 
 .buttons {
@@ -42,12 +45,10 @@ h1 {
 
 button {
   padding: 12px 20px;
-  font-size: 16px;
-  border: none;
   border-radius: 30px;
+  border: none;
   cursor: pointer;
   position: absolute;
-  transition: all 0.25s ease;
 }
 
 #yesBtn {
@@ -62,7 +63,7 @@ button {
   left: 60%;
 }
 
-/* Heart burst */
+/* Heart explosion */
 .heart {
   position: fixed;
   font-size: 18px;
@@ -70,17 +71,13 @@ button {
 }
 
 @keyframes explode {
-  0% {
-    transform: scale(0.5);
-    opacity: 1;
-  }
-  100% {
+  to {
     transform: translate(var(--x), var(--y)) scale(1.5);
     opacity: 0;
   }
 }
 
-/* Glow ripple */
+/* Ripple */
 .ripple {
   position: fixed;
   border-radius: 50%;
@@ -89,11 +86,6 @@ button {
 }
 
 @keyframes rippleAnim {
-  from {
-    width: 0;
-    height: 0;
-    opacity: 0.7;
-  }
   to {
     width: 200px;
     height: 200px;
@@ -101,7 +93,7 @@ button {
   }
 }
 
-/* Final screen */
+/* Final Screen */
 #finalScreen {
   position: fixed;
   top: 0;
@@ -123,12 +115,44 @@ button {
   pointer-events: all;
 }
 
+#finalScreen button {
+  margin-top: 100px;
+  padding: 12px 20px;
+  border-radius: 25px;
+  border: none;
+  cursor: pointer;
+  background: white;
+  color: #ff4d6d;
+}
+
+/* Floating hearts */
+.float-heart {
+  position: fixed;
+  bottom: -20px;
+  font-size: 20px;
+  animation: floatUp 5s linear forwards;
+}
+
+@keyframes floatUp {
+  to {
+    transform: translateY(-110vh);
+    opacity: 0;
+  }
+}
 </style>
 </head>
 
 <body>
 
+<!-- 🎵 Background Music -->
+<audio id="bgMusic" autoplay loop>
+  <source src="https://www.bensound.com/bensound-music/bensound-romantic.mp3" type="audio/mpeg">
+</audio>
+
 <div class="container">
+  <h1>Enter your name 💌</h1>
+  <input type="text" id="nameInput" placeholder="Your name...">
+
   <h1>Do you love me? 💖</h1>
   <div id="message"></div>
 
@@ -140,7 +164,9 @@ button {
 
 <!-- Final Screen -->
 <div id="finalScreen">
-  <h1>Will you be mine forever? 💍💖</h1>
+  <h1 id="finalTitle"></h1>
+
+  <button id="finalYes">Yes 💖</button>
 </div>
 
 <script>
@@ -149,6 +175,8 @@ const yesBtn = document.getElementById("yesBtn");
 const message = document.getElementById("message");
 const container = document.querySelector(".buttons");
 const finalScreen = document.getElementById("finalScreen");
+const finalTitle = document.getElementById("finalTitle");
+const nameInput = document.getElementById("nameInput");
 
 let scale = 1;
 
@@ -160,19 +188,16 @@ const messages = [
   "Come on... yes 💖"
 ];
 
-// Move No button (mobile + desktop)
-noBtn.addEventListener("touchstart", moveNo);
+// Move NO button
 noBtn.addEventListener("mouseover", moveNo);
+noBtn.addEventListener("touchstart", moveNo);
 
 function moveNo() {
   const maxX = container.clientWidth - noBtn.offsetWidth;
   const maxY = container.clientHeight - noBtn.offsetHeight;
 
-  const x = Math.random() * maxX;
-  const y = Math.random() * maxY;
-
-  noBtn.style.left = x + "px";
-  noBtn.style.top = y + "px";
+  noBtn.style.left = Math.random() * maxX + "px";
+  noBtn.style.top = Math.random() * maxY + "px";
 
   scale *= 0.9;
   noBtn.style.transform = `scale(${scale})`;
@@ -180,9 +205,11 @@ function moveNo() {
   message.textContent = messages[Math.floor(Math.random()*messages.length)];
 }
 
-// YES CLICK 💘
+// YES CLICK (first screen)
 yesBtn.addEventListener("click", (e) => {
-  message.textContent = "I knew it 😍💘";
+  const name = nameInput.value || "Love";
+
+  finalTitle.textContent = `Will you be mine forever, ${name}? 💍💖`;
 
   createBurst(e.clientX, e.clientY);
 
@@ -191,7 +218,19 @@ yesBtn.addEventListener("click", (e) => {
   }, 800);
 });
 
-// Heart burst explosion
+// FINAL YES CLICK 😈
+document.getElementById("finalYes").addEventListener("click", () => {
+  const name = nameInput.value || "Love";
+
+  finalTitle.textContent = "";
+
+  setTimeout(() => {
+    finalTitle.textContent = `${name}, you are mine hehe 😈💖`;
+    startHearts();
+  }, 300);
+});
+
+// Heart burst
 function createBurst(x, y) {
   for (let i = 0; i < 25; i++) {
     const heart = document.createElement("div");
@@ -201,18 +240,16 @@ function createBurst(x, y) {
     const angle = Math.random() * 2 * Math.PI;
     const distance = Math.random() * 100;
 
-    heart.style.setProperty("--x", Math.cos(angle) * distance + "px");
-    heart.style.setProperty("--y", Math.sin(angle) * distance + "px");
+    heart.style.setProperty("--x", Math.cos(angle)*distance + "px");
+    heart.style.setProperty("--y", Math.sin(angle)*distance + "px");
 
     heart.style.left = x + "px";
     heart.style.top = y + "px";
 
     document.body.appendChild(heart);
-
     setTimeout(() => heart.remove(), 1000);
   }
 
-  // ripple effect
   const ripple = document.createElement("div");
   ripple.className = "ripple";
   ripple.style.left = (x - 100) + "px";
@@ -221,6 +258,25 @@ function createBurst(x, y) {
   document.body.appendChild(ripple);
   setTimeout(() => ripple.remove(), 800);
 }
+
+// Floating hearts
+function startHearts() {
+  setInterval(() => {
+    const heart = document.createElement("div");
+    heart.className = "float-heart";
+    heart.innerHTML = "💗";
+
+    heart.style.left = Math.random() * 100 + "vw";
+
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 5000);
+  }, 300);
+}
+
+// Fix autoplay (mobile)
+document.body.addEventListener("click", () => {
+  document.getElementById("bgMusic").play();
+});
 </script>
 
 </body>
